@@ -1,13 +1,14 @@
 const visualizer = document.getElementById("visualizer");
 const newArrayBtn = document.getElementById("new-array");
 const startSortBtn = document.getElementById("start-sort");
+const pauseSortBtn = document.getElementById("pause-sort");
 
 const state = {
   array: [],
   originalArray: [],
   size: 30,
   speed: 50,
-  status: "idle",
+  status: "idle" | "running" | "completed",
   comparing: [],
   swapping: [],
   sorted: new Set(),
@@ -65,7 +66,11 @@ function regenerateArray() {
   state.status = "idle";
   renderArray();
 }
-
+async function waitWhilePaused() {
+  while (state.status === "paused") {
+    await sleep(50);
+  }
+}
 async function bubbleSort() {
   if (state.status !== "idle") return;
 
@@ -73,33 +78,35 @@ async function bubbleSort() {
   state.sorted.clear();
 
   const n = state.array.length;
+for (let i = 0; i < n - 1; i++) {
 
-  for (let i = 0; i < n - 1; i++) {
+  for (let j = 0; j < n - i - 1; j++) {
+    await waitWhilePaused();
 
-    for (let j = 0; j < n - i - 1; j++) {
-      state.comparing = [j, j + 1];
+    state.comparing = [j, j + 1];
+    renderArray();
+    await sleep(state.speed);
+
+    if (state.array[j] > state.array[j + 1]) {
+      state.swapping = [j, j + 1];
+
+      const temp = state.array[j];
+      state.array[j] = state.array[j + 1];
+      state.array[j + 1] = temp;
+
       renderArray();
       await sleep(state.speed);
-
-      if (state.array[j] > state.array[j + 1]) {
-        state.swapping = [j, j + 1];
-
-        const temp = state.array[j];
-        state.array[j] = state.array[j + 1];
-        state.array[j + 1] = temp;
-
-        renderArray();
-        await sleep(state.speed);
-      }
-
-      state.comparing = [];
-      state.swapping = [];
     }
 
-    
-    state.sorted.add(n - i - 1);
-    renderArray();
+    state.comparing = [];
+    state.swapping = [];
   }
+
+  await waitWhilePaused();
+  state.sorted.add(n - i - 1);
+  renderArray();
+}
+
 
   
   state.sorted.add(0);
@@ -111,5 +118,14 @@ async function bubbleSort() {
 
 startSortBtn.addEventListener("click", bubbleSort);
 newArrayBtn.addEventListener("click", regenerateArray);
+pauseSortBtn.addEventListener("click", () => {
+  if (state.status === "running") {
+    state.status = "paused";
+    pauseSortBtn.textContent = "Resume";
+  } else if (state.status === "paused") {
+    state.status = "running";
+    pauseSortBtn.textContent = "Pause";
+  }
+});
 
 init();
