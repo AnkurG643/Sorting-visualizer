@@ -10,8 +10,22 @@
     <div id="app">
       <div id="controls">
         <button id="new-array">New Array</button>
-        <button id="start-sort">Start Bubble Sort</button>
+        <select id="algorithm-select">
+          <option value="bubble">Bubble Sort</option>
+          <option value="insertion">Insertion Sort</option>
+          <option value="selection">Selection Sort</option>
+          <option value="merge">Merge Sort</option>
+        </select>
+        <div id="stats">
+  <span>Comparisons: <strong id="comp-count">0</strong></span>
+  <span>Swaps: <strong id="swap-count">0</strong></span>
+  <span>Writes: <strong id="write-count">0</strong></span>
+</div>
+
+        <button id="start-sort">Start Sort</button>
         <button id="pause-sort">Pause</button>
+        <button id="stop-sort">Reset</button>
+
       </div>
       <div id="visualizer"></div>
     </div>
