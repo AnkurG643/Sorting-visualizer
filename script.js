@@ -46,6 +46,7 @@ const state = {
   swapping: [],
   sorted: new Set(),
   mergeWriting: null,
+  pivotIndex: null,
 
   comparisons: 0,
   swaps: 0,
@@ -163,6 +164,9 @@ function renderArray() {
     else if (state.mergeWriting === i) bar.style.background = "#1e88e5";
     else if (state.swapping.includes(i)) bar.style.background = "#e53935";
     else if (state.comparing.includes(i)) bar.style.background = "#ffb300";
+    else if (state.pivotIndex === i) {
+  bar.style.background = "#8e24aa"; // purple pivot
+}
 
     visualizer.appendChild(bar);
   }
@@ -230,6 +234,96 @@ async function bubbleSort() {
   state.sorted.add(0);
   state.status = "completed";
   stopTimer();
+}
+async function partition(low, high) {
+  // 🔀 Random pivot selection
+  const randomIndex =
+    Math.floor(Math.random() * (high - low + 1)) + low;
+
+  if (randomIndex !== high) {
+    state.swaps++;
+    updateStats();
+
+    state.swapping = [randomIndex, high];
+    [state.array[randomIndex], state.array[high]] =
+      [state.array[high], state.array[randomIndex]];
+
+    renderArray();
+    await sleep(state.speed);
+  }
+
+  const pivot = state.array[high];
+  state.pivotIndex = high;
+
+  let i = low;
+
+  for (let j = low; j < high; j++) {
+    await waitWhilePaused();
+
+    state.comparisons++;
+    updateStats();
+
+    state.comparing = [j, high];
+    renderArray();
+    await sleep(state.speed);
+
+    if (state.array[j] < pivot) {
+      if (i !== j) {
+        state.swaps++;
+        updateStats();
+
+        state.swapping = [i, j];
+        [state.array[i], state.array[j]] =
+          [state.array[j], state.array[i]];
+
+        renderArray();
+        await sleep(state.speed);
+      }
+      i++;
+    }
+
+    state.comparing = [];
+    state.swapping = [];
+  }
+
+  // Place pivot in correct position
+  if (i !== high) {
+    state.swaps++;
+    updateStats();
+
+    state.swapping = [i, high];
+    [state.array[i], state.array[high]] =
+      [state.array[high], state.array[i]];
+
+    renderArray();
+    await sleep(state.speed);
+  }
+
+  state.pivotIndex = null;
+  return i;
+}
+
+async function quickSortHelper(low, high) {
+  if (low >= high) return;
+
+  const pivotPos = await partition(low, high);
+
+  await quickSortHelper(low, pivotPos - 1);
+  await quickSortHelper(pivotPos + 1, high);
+}
+
+async function quickSort() {
+  state.status = "running";
+
+  await quickSortHelper(0, state.array.length - 1);
+
+  for (let i = 0; i < state.array.length; i++) {
+    state.sorted.add(i);
+  }
+
+  state.status = "completed";
+  stopTimer();
+  renderArray();
 }
 
 /* ---------- INSERTION SORT ---------- */
@@ -385,6 +479,8 @@ startTimer();
   else if (state.algorithm === "insertion") insertionSort();
   else if (state.algorithm === "selection") selectionSort();
   else if (state.algorithm === "merge") mergeSort();
+  else if (state.algorithm === "quick") quickSort();
+
 }
 
 /* ---------- EVENTS ---------- */
@@ -603,6 +699,55 @@ const algorithmDocs = {
       "Poor performance"
     ]
   },
+  quick: {
+  name: "Quick Sort",
+  type: "Divide and Conquer",
+
+  complexity: {
+    best: "O(n log n)",
+    avg: "O(n log n)",
+    worst: "O(n²)",
+    space: "O(log n)",
+    stable: "No",
+    inplace: "Yes"
+  },
+
+  description:
+    "Quick Sort is a divide-and-conquer algorithm that selects a pivot element and partitions the array around the pivot, placing smaller elements before it and larger elements after it.",
+
+  steps: [
+    "Choose a pivot element",
+    "Partition the array around the pivot",
+    "Elements smaller than pivot go left",
+    "Elements larger than pivot go right",
+    "Recursively apply to left and right subarrays"
+  ],
+
+  uses: [
+    "Large datasets",
+    "General-purpose sorting",
+    "Performance-critical applications"
+  ],
+
+  avoid: [
+    "When stability is required",
+    "Worst-case sensitive systems",
+    "Already sorted data without random pivot"
+  ],
+
+  pros: [
+    "Very fast in practice",
+    "In-place sorting",
+    "Good cache performance"
+  ],
+
+  cons: [
+    "Worst-case O(n²)",
+    "Not stable",
+    "Performance depends on pivot choice"
+  ]
+},
+
 
   merge: {
     name: "Merge Sort",
