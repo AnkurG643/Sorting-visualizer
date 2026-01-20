@@ -9,6 +9,11 @@ const algorithmSelect = document.getElementById("algorithm-select");
 const compCountEl = document.getElementById("comp-count");
 const swapCountEl = document.getElementById("swap-count");
 const writeCountEl = document.getElementById("write-count");
+const sizeSlider = document.getElementById("size-slider");
+const sizeValue = document.getElementById("size-value");
+const speedSlider = document.getElementById("speed-slider");
+const speedValue = document.getElementById("speed-value");
+const timeValueEl = document.getElementById("time-value");
 
 /* ---------- STATE ---------- */
 const state = {
@@ -26,14 +31,19 @@ const state = {
 
   comparisons: 0,
   swaps: 0,
-  writes: 0
+  writes: 0,
+
+  startTime: null,
+elapsedTime: 0,
+timerInterval: null
+
 };
 
 let mergeSteps = [];
 
 /* ---------- UTILITIES ---------- */
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function waitWhilePaused() {
@@ -43,9 +53,36 @@ async function waitWhilePaused() {
 }
 
 function generateArray(size) {
-  return Array.from({ length: size }, () =>
-    Math.floor(Math.random() * 300) + 20
+  return Array.from(
+    { length: size },
+    () => Math.floor(Math.random() * 300) + 20,
   );
+}
+function mapSpeedToDelay(speed) {
+  // speed: 1 (slow) → 100 (fast)
+  // delay: 200ms → 5ms
+  return Math.max(5, 200 - speed * 1.95);
+}
+
+function startTimer() {
+  state.startTime = performance.now() - state.elapsedTime;
+
+  state.timerInterval = setInterval(() => {
+    state.elapsedTime = performance.now() - state.startTime;
+    timeValueEl.textContent = (state.elapsedTime / 1000).toFixed(2) + "s";
+  }, 50);
+}
+
+function stopTimer() {
+  clearInterval(state.timerInterval);
+  state.timerInterval = null;
+}
+
+function resetTimer() {
+  stopTimer();
+  state.startTime = null;
+  state.elapsedTime = 0;
+  timeValueEl.textContent = "0.00s";
 }
 
 /* ---------- STATS ---------- */
@@ -90,6 +127,8 @@ function init() {
   state.status = "idle";
   resetStats();
   renderArray();
+  sizeValue.textContent = state.size;
+  state.speed = mapSpeedToDelay(Number(speedSlider.value));
 }
 
 function regenerateArray() {
@@ -118,8 +157,10 @@ async function bubbleSort() {
         updateStats();
 
         state.swapping = [j, j + 1];
-        [state.array[j], state.array[j + 1]] =
-          [state.array[j + 1], state.array[j]];
+        [state.array[j], state.array[j + 1]] = [
+          state.array[j + 1],
+          state.array[j],
+        ];
 
         renderArray();
         await sleep(state.speed);
@@ -135,6 +176,7 @@ async function bubbleSort() {
 
   state.sorted.add(0);
   state.status = "completed";
+  stopTimer();
 }
 
 /* ---------- INSERTION SORT ---------- */
@@ -178,6 +220,7 @@ async function insertionSort() {
 
   for (let i = 0; i < n; i++) state.sorted.add(i);
   state.status = "completed";
+  stopTimer();
 }
 
 /* ---------- SELECTION SORT ---------- */
@@ -206,8 +249,7 @@ async function selectionSort() {
       updateStats();
 
       state.swapping = [i, min];
-      [state.array[i], state.array[min]] =
-        [state.array[min], state.array[i]];
+      [state.array[i], state.array[min]] = [state.array[min], state.array[i]];
 
       renderArray();
       await sleep(state.speed);
@@ -220,12 +262,14 @@ async function selectionSort() {
 
   state.sorted.add(n - 1);
   state.status = "completed";
+  stopTimer();
 }
 
 /* ---------- MERGE SORT ---------- */
 function merge(arr, l, m, r) {
   const temp = [];
-  let i = l, j = m + 1;
+  let i = l,
+    j = m + 1;
 
   while (i <= m && j <= r) {
     temp.push(arr[i] <= arr[j] ? arr[i++] : arr[j++]);
@@ -269,6 +313,7 @@ async function mergeSort() {
 
   for (let i = 0; i < state.array.length; i++) state.sorted.add(i);
   state.status = "completed";
+  stopTimer();
 }
 
 /* ---------- CONTROLLER ---------- */
@@ -280,6 +325,8 @@ function startSelectedSort() {
   state.comparing = [];
   state.swapping = [];
   state.mergeWriting = null;
+resetTimer();
+startTimer();
 
   if (state.algorithm === "bubble") bubbleSort();
   else if (state.algorithm === "insertion") insertionSort();
@@ -294,12 +341,15 @@ newArrayBtn.addEventListener("click", regenerateArray);
 pauseSortBtn.addEventListener("click", () => {
   if (state.status === "running") {
     state.status = "paused";
+    stopTimer();
     pauseSortBtn.textContent = "Resume";
   } else if (state.status === "paused") {
     state.status = "running";
+    startTimer();
     pauseSortBtn.textContent = "Pause";
   }
 });
+
 
 resetBtn.addEventListener("click", () => {
   window.location.reload(); // 🔥 HARD RESET
@@ -313,6 +363,23 @@ algorithmSelect.addEventListener("change", () => {
   state.swapping = [];
   state.mergeWriting = null;
   renderArray();
+});
+sizeSlider.addEventListener("input", () => {
+  if (state.status !== "idle") return;
+
+  const newSize = Number(sizeSlider.value);
+  state.size = newSize;
+  sizeValue.textContent = newSize;
+
+  init(); // regenerate array safely
+});
+speedSlider.addEventListener("input", () => {
+  const speed = Number(speedSlider.value);
+  state.speed = mapSpeedToDelay(speed);
+
+  if (speed < 30) speedValue.textContent = "Slow";
+  else if (speed < 70) speedValue.textContent = "Medium";
+  else speedValue.textContent = "Fast";
 });
 
 /* ---------- START ---------- */

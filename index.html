@@ -16,17 +16,31 @@
           <option value="selection">Selection Sort</option>
           <option value="merge">Merge Sort</option>
         </select>
+        <label>
+          Array Size:
+          <input type="range" id="size-slider" min="5" max="200" value="30" />
+          <span id="size-value">30</span>
+        </label>
+        <label>
+          Speed:
+          <input type="range" id="speed-slider" min="1" max="100" value="50" />
+          <span id="speed-value">Medium</span>
+        </label>
+
         <div id="stats">
-  <span>Comparisons: <strong id="comp-count">0</strong></span>
-  <span>Swaps: <strong id="swap-count">0</strong></span>
-  <span>Writes: <strong id="write-count">0</strong></span>
-</div>
+          <span>Comparisons: <strong id="comp-count">0</strong></span>
+          <span>Swaps: <strong id="swap-count">0</strong></span>
+          <span>Writes: <strong id="write-count">0</strong></span>
+        </div>
 
         <button id="start-sort">Start Sort</button>
         <button id="pause-sort">Pause</button>
         <button id="stop-sort">Reset</button>
-
       </div>
+      <div id="timer">
+  Time: <strong id="time-value">0.00s</strong>
+</div>
+
       <div id="visualizer"></div>
     </div>
     <script src="script.js"></script>
