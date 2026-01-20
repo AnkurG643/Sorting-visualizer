@@ -14,6 +14,24 @@ const sizeValue = document.getElementById("size-value");
 const speedSlider = document.getElementById("speed-slider");
 const speedValue = document.getElementById("speed-value");
 const timeValueEl = document.getElementById("time-value");
+const docEls = {
+  name: document.getElementById("current-algo-name"),
+  type: document.getElementById("algo-type"),
+
+  best: document.getElementById("complexity-best"),
+  avg: document.getElementById("complexity-avg"),
+  worst: document.getElementById("complexity-worst"),
+  space: document.getElementById("complexity-space"),
+  stable: document.getElementById("is-stable"),
+  inplace: document.getElementById("is-inplace"),
+
+  desc: document.getElementById("algo-desc"),
+  steps: document.getElementById("algo-steps"),
+  uses: document.getElementById("algo-uses"),
+  avoid: document.getElementById("algo-avoid"),
+  pros: document.getElementById("algo-pros"),
+  cons: document.getElementById("algo-cons")
+};
 
 /* ---------- STATE ---------- */
 const state = {
@@ -100,6 +118,39 @@ function resetStats() {
 }
 
 /* ---------- RENDER ---------- */
+function renderAlgorithmDocs(algoKey) {
+  const doc = algorithmDocs[algoKey];
+  if (!doc) return;
+
+  docEls.name.textContent = doc.name;
+  docEls.type.textContent = doc.type;
+
+  docEls.best.textContent = doc.complexity.best;
+  docEls.avg.textContent = doc.complexity.avg;
+  docEls.worst.textContent = doc.complexity.worst;
+  docEls.space.textContent = doc.complexity.space;
+  docEls.stable.textContent = doc.complexity.stable;
+  docEls.inplace.textContent = doc.complexity.inplace;
+
+  docEls.desc.textContent = doc.description;
+
+  // Helper to render lists
+  const fillList = (el, items) => {
+    el.innerHTML = "";
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      el.appendChild(li);
+    });
+  };
+
+  fillList(docEls.steps, doc.steps);
+  fillList(docEls.uses, doc.uses);
+  fillList(docEls.avoid, doc.avoid);
+  fillList(docEls.pros, doc.pros);
+  fillList(docEls.cons, doc.cons);
+}
+
 function renderArray() {
   visualizer.innerHTML = "";
 
@@ -129,6 +180,8 @@ function init() {
   renderArray();
   sizeValue.textContent = state.size;
   state.speed = mapSpeedToDelay(Number(speedSlider.value));
+  renderAlgorithmDocs(state.algorithm);
+
 }
 
 function regenerateArray() {
@@ -381,6 +434,221 @@ speedSlider.addEventListener("input", () => {
   else if (speed < 70) speedValue.textContent = "Medium";
   else speedValue.textContent = "Fast";
 });
+algorithmSelect.addEventListener("change", () => {
+  if (state.status !== "idle") return;
+
+  state.algorithm = algorithmSelect.value;
+
+  renderAlgorithmDocs(state.algorithm);
+
+  state.sorted.clear();
+  state.comparing = [];
+  state.swapping = [];
+  state.mergeWriting = null;
+
+  renderArray();
+});
 
 /* ---------- START ---------- */
+
+const algorithmDocs = {
+  bubble: {
+    name: "Bubble Sort",
+    type: "Comparison Sort",
+
+    complexity: {
+      best: "O(n)",
+      avg: "O(n²)",
+      worst: "O(n²)",
+      space: "O(1)",
+      stable: "Yes",
+      inplace: "Yes"
+    },
+
+    description:
+      "Bubble Sort is a simple comparison-based algorithm that repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order.",
+
+    steps: [
+      "Start at the beginning of the array",
+      "Compare adjacent elements",
+      "Swap them if they are in the wrong order",
+      "The largest element moves to the end in each pass",
+      "Repeat for the remaining unsorted portion",
+      "Stop when no swaps occur in a full pass"
+    ],
+
+    uses: [
+      "Educational purposes",
+      "Very small datasets",
+      "Nearly sorted data",
+      "When simplicity matters more than performance"
+    ],
+
+    avoid: [
+      "Large datasets",
+      "Performance-critical applications",
+      "Real-time systems",
+      "Production-scale sorting"
+    ],
+
+    pros: [
+      "Very easy to understand",
+      "In-place sorting",
+      "Stable algorithm",
+      "Can detect already sorted arrays"
+    ],
+
+    cons: [
+      "Extremely slow for large inputs",
+      "O(n²) time complexity",
+      "Unnecessary comparisons",
+      "Not practical for real-world use"
+    ]
+  },
+
+  insertion: {
+    name: "Insertion Sort",
+    type: "Comparison Sort",
+
+    complexity: {
+      best: "O(n)",
+      avg: "O(n²)",
+      worst: "O(n²)",
+      space: "O(1)",
+      stable: "Yes",
+      inplace: "Yes"
+    },
+
+    description:
+      "Insertion Sort builds the sorted array one element at a time by inserting each element into its correct position among the previously sorted elements.",
+
+    steps: [
+      "Start from the second element",
+      "Compare it with elements before it",
+      "Shift larger elements one position right",
+      "Insert the element at the correct position",
+      "Repeat for all elements"
+    ],
+
+    uses: [
+      "Small datasets",
+      "Nearly sorted arrays",
+      "Online sorting (streaming data)",
+      "When memory usage must be minimal"
+    ],
+
+    avoid: [
+      "Large datasets",
+      "Highly unsorted data",
+      "Performance-critical systems"
+    ],
+
+    pros: [
+      "Efficient for nearly sorted data",
+      "Stable algorithm",
+      "In-place sorting",
+      "Simple implementation"
+    ],
+
+    cons: [
+      "O(n²) worst-case time",
+      "Slow for large datasets",
+      "Not suitable for large-scale applications"
+    ]
+  },
+
+  selection: {
+    name: "Selection Sort",
+    type: "Comparison Sort",
+
+    complexity: {
+      best: "O(n²)",
+      avg: "O(n²)",
+      worst: "O(n²)",
+      space: "O(1)",
+      stable: "No",
+      inplace: "Yes"
+    },
+
+    description:
+      "Selection Sort repeatedly selects the smallest element from the unsorted portion and places it at the beginning.",
+
+    steps: [
+      "Find the minimum element in the array",
+      "Swap it with the first unsorted element",
+      "Move the boundary of sorted/unsorted",
+      "Repeat until array is sorted"
+    ],
+
+    uses: [
+      "Educational purposes",
+      "Small datasets",
+      "When swap count must be minimized"
+    ],
+
+    avoid: [
+      "Large datasets",
+      "Time-sensitive applications"
+    ],
+
+    pros: [
+      "Simple to understand",
+      "Minimal number of swaps",
+      "In-place sorting"
+    ],
+
+    cons: [
+      "Always O(n²)",
+      "Not stable",
+      "Poor performance"
+    ]
+  },
+
+  merge: {
+    name: "Merge Sort",
+    type: "Divide and Conquer",
+
+    complexity: {
+      best: "O(n log n)",
+      avg: "O(n log n)",
+      worst: "O(n log n)",
+      space: "O(n)",
+      stable: "Yes",
+      inplace: "No"
+    },
+
+    description:
+      "Merge Sort divides the array into halves, sorts them recursively, and then merges the sorted halves.",
+
+    steps: [
+      "Divide the array into two halves",
+      "Recursively sort each half",
+      "Merge the sorted halves",
+      "Repeat until fully sorted"
+    ],
+
+    uses: [
+      "Large datasets",
+      "Stable sorting requirement",
+      "Linked lists",
+      "External sorting"
+    ],
+
+    avoid: [
+      "Memory-constrained systems",
+      "In-place sorting requirements"
+    ],
+
+    pros: [
+      "Guaranteed O(n log n)",
+      "Stable algorithm",
+      "Excellent for large datasets"
+    ],
+
+    cons: [
+      "Requires extra memory",
+      "Slower than Quick Sort in practice"
+    ]
+  }
+};
 init();
