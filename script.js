@@ -70,6 +70,16 @@ async function waitWhilePaused() {
     await sleep(50);
   }
 }
+function lockControls() {
+  algorithmSelect.disabled = true;
+  sizeSlider.disabled = true;
+  newArrayBtn.disabled = true;
+}
+function unlockControls() {
+  algorithmSelect.disabled = false;
+  sizeSlider.disabled = false;
+  newArrayBtn.disabled = false;
+}
 
 function generateArray(size) {
   return Array.from(
@@ -77,6 +87,7 @@ function generateArray(size) {
     () => Math.floor(Math.random() * 300) + 20,
   );
 }
+ 
 function mapSpeedToDelay(speed) {
   // speed: 1 (slow) → 100 (fast)
   // delay: 200ms → 5ms
@@ -233,7 +244,10 @@ async function bubbleSort() {
 
   state.sorted.add(0);
   state.status = "completed";
+  pauseSortBtn.textContent = "Pause";
+
   stopTimer();
+  unlockControls();
 }
 async function partition(low, high) {
   // 🔀 Random pivot selection
@@ -322,7 +336,10 @@ async function quickSort() {
   }
 
   state.status = "completed";
+  pauseSortBtn.textContent = "Pause";
+
   stopTimer();
+  unlockControls();
   renderArray();
 }
 
@@ -367,7 +384,10 @@ async function insertionSort() {
 
   for (let i = 0; i < n; i++) state.sorted.add(i);
   state.status = "completed";
+  pauseSortBtn.textContent = "Pause";
+
   stopTimer();
+  unlockControls();
 }
 
 /* ---------- SELECTION SORT ---------- */
@@ -409,7 +429,10 @@ async function selectionSort() {
 
   state.sorted.add(n - 1);
   state.status = "completed";
+  pauseSortBtn.textContent = "Pause";
+
   stopTimer();
+  unlockControls();
 }
 
 /* ---------- MERGE SORT ---------- */
@@ -460,13 +483,16 @@ async function mergeSort() {
 
   for (let i = 0; i < state.array.length; i++) state.sorted.add(i);
   state.status = "completed";
+  pauseSortBtn.textContent = "Pause";
+
   stopTimer();
+  unlockControls();
 }
 
 /* ---------- CONTROLLER ---------- */
 function startSelectedSort() {
   if (state.status !== "idle") return;
-
+  lockControls();
   resetStats();
   state.sorted.clear();
   state.comparing = [];
@@ -474,12 +500,14 @@ function startSelectedSort() {
   state.mergeWriting = null;
 resetTimer();
 startTimer();
+pauseSortBtn.textContent = "Pause";
 
   if (state.algorithm === "bubble") bubbleSort();
   else if (state.algorithm === "insertion") insertionSort();
   else if (state.algorithm === "selection") selectionSort();
   else if (state.algorithm === "merge") mergeSort();
   else if (state.algorithm === "quick") quickSort();
+
 
 }
 
@@ -506,13 +534,25 @@ resetBtn.addEventListener("click", () => {
 
 algorithmSelect.addEventListener("change", () => {
   if (state.status !== "idle") return;
+
   state.algorithm = algorithmSelect.value;
+
+  // 🔹 update documentation
+  renderAlgorithmDocs(state.algorithm);
+
+  // 🔹 update label above visualizer
+  document.getElementById("viz-algo-name").textContent =
+    algorithmDocs[state.algorithm].name;
+
+  // 🔹 reset visuals
   state.sorted.clear();
   state.comparing = [];
   state.swapping = [];
   state.mergeWriting = null;
+
   renderArray();
 });
+
 sizeSlider.addEventListener("input", () => {
   if (state.status !== "idle") return;
 

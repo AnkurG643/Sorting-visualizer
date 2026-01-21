@@ -5,24 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SortScope-Advanced Sorting Algorithm Visualizer</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png" />
   </head>
   <body>
     <div class="container">
       <!-- Header -->
       <header class="header">
         <h1>SortScope</h1>
-        <p class="subtitle">Visualize and understand sorting algorithms with real-time complexity analysis</p>
+        <p class="subtitle">
+          Visualize and understand sorting algorithms with real-time complexity
+          analysis
+        </p>
       </header>
 
       <!-- Main Grid Layout -->
       <div class="main-grid">
-        
         <!-- Top Left - Controls -->
         <div class="controls-section">
           <div class="control-card">
             <h2>Controls</h2>
-            
+
             <div class="control-group">
               <label for="algorithm-select">Select Algorithm</label>
               <select id="algorithm-select" class="control-select">
@@ -31,7 +33,6 @@
                 <option value="selection">Selection Sort</option>
                 <option value="merge">Merge Sort</option>
                 <option value="quick">Quick Sort</option>
-
               </select>
             </div>
 
@@ -39,19 +40,37 @@
               <label for="size-slider">
                 Array Size: <span id="size-value">30</span>
               </label>
-              <input type="range" id="size-slider" min="5" max="80" value="30" class="slider" />
+              <input
+                type="range"
+                id="size-slider"
+                min="5"
+                max="80"
+                value="30"
+                class="slider"
+              />
             </div>
 
             <div class="control-group">
               <label for="speed-slider">
                 Speed: <span id="speed-value">Medium</span>
               </label>
-              <input type="range" id="speed-slider" min="1" max="100" value="50" class="slider" />
+              <input
+                type="range"
+                id="speed-slider"
+                min="1"
+                max="100"
+                value="50"
+                class="slider"
+              />
             </div>
 
             <div class="button-group">
-              <button id="new-array" class="btn btn-secondary">New Array</button>
-              <button id="start-sort" class="btn btn-primary">Start Sort</button>
+              <button id="new-array" class="btn btn-secondary">
+                New Array
+              </button>
+              <button id="start-sort" class="btn btn-primary">
+                Start Sort
+              </button>
               <button id="pause-sort" class="btn btn-warning">Pause</button>
               <button id="stop-sort" class="btn btn-danger">Reset</button>
             </div>
@@ -62,8 +81,10 @@
         <div class="visualization-section">
           <div class="viz-card">
             <h2>Visualization</h2>
+            <p class="current-algo">Current: <strong id="viz-algo-name">Bubble Sort</strong></p>
+
             <div class="visualizer" id="visualizer"></div>
-            
+
             <!-- Legend -->
             <div class="legend">
               <div class="legend-item">
@@ -82,6 +103,10 @@
                 <span class="legend-color sorted"></span>
                 <span>Sorted</span>
               </div>
+              <div class="legend-item">
+                <span class="legend-color pivot"></span>
+                <span>Pivot (Quick Sort)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -90,7 +115,7 @@
         <div class="statistics-section">
           <div class="stats-card">
             <h2>Statistics</h2>
-            
+
             <div class="stats-grid">
               <div class="stat-item">
                 <span class="stat-label">Time Elapsed</span>
@@ -126,15 +151,21 @@
               <div class="complexity-grid">
                 <div class="complexity-item best">
                   <span class="complexity-label">Best Case</span>
-                  <span class="complexity-value" id="complexity-best">O(n)</span>
+                  <span class="complexity-value" id="complexity-best"
+                    >O(n)</span
+                  >
                 </div>
                 <div class="complexity-item average">
                   <span class="complexity-label">Average Case</span>
-                  <span class="complexity-value" id="complexity-avg">O(n²)</span>
+                  <span class="complexity-value" id="complexity-avg"
+                    >O(n²)</span
+                  >
                 </div>
                 <div class="complexity-item worst">
                   <span class="complexity-label">Worst Case</span>
-                  <span class="complexity-value" id="complexity-worst">O(n²)</span>
+                  <span class="complexity-value" id="complexity-worst"
+                    >O(n²)</span
+                  >
                 </div>
               </div>
 
@@ -158,8 +189,9 @@
             <div class="doc-section">
               <h3>Description</h3>
               <p id="algo-desc">
-                Bubble Sort is a simple comparison-based algorithm that repeatedly steps through the list, 
-                compares adjacent elements and swaps them if they are in the wrong order. The pass through 
+                Bubble Sort is a simple comparison-based algorithm that
+                repeatedly steps through the list, compares adjacent elements
+                and swaps them if they are in the wrong order. The pass through
                 the list is repeated until the list is sorted.
               </p>
             </div>
@@ -171,7 +203,10 @@
                 <li>Start at the beginning of the array</li>
                 <li>Compare each pair of adjacent elements</li>
                 <li>Swap them if they are in the wrong order</li>
-                <li>Continue until the end of the array (largest element "bubbles" to the end)</li>
+                <li>
+                  Continue until the end of the array (largest element "bubbles"
+                  to the end)
+                </li>
                 <li>Repeat the process for the remaining unsorted portion</li>
                 <li>Stop when no swaps are needed in a complete pass</li>
               </ol>
@@ -185,7 +220,9 @@
                   <li>Educational purposes and learning sorting concepts</li>
                   <li>Small datasets (less than 50 elements)</li>
                   <li>Nearly sorted or partially sorted data</li>
-                  <li>Situations where simplicity is prioritized over efficiency</li>
+                  <li>
+                    Situations where simplicity is prioritized over efficiency
+                  </li>
                 </ul>
               </div>
 
@@ -206,7 +243,9 @@
                 <ul id="algo-pros">
                   <li>Simple to understand and implement</li>
                   <li>Requires no additional memory (in-place sorting)</li>
-                  <li>Stable sort - maintains relative order of equal elements</li>
+                  <li>
+                    Stable sort - maintains relative order of equal elements
+                  </li>
                   <li>Can detect if the list is already sorted</li>
                   <li>Works well on nearly sorted data</li>
                 </ul>
@@ -215,11 +254,22 @@
               <div class="doc-section cons">
                 <h3>Disadvantages</h3>
                 <ul id="algo-cons">
-                  <li>Very inefficient for large datasets - O(n²) complexity</li>
-                  <li>Much slower than advanced algorithms like Quick Sort or Merge Sort</li>
+                  <li>
+                    Very inefficient for large datasets - O(n²) complexity
+                  </li>
+                  <li>
+                    Much slower than advanced algorithms like Quick Sort or
+                    Merge Sort
+                  </li>
                   <li>Poor performance even on average cases</li>
-                  <li>Not suitable for real-world applications with significant data</li>
-                  <li>Makes unnecessary comparisons even when list is nearly sorted</li>
+                  <li>
+                    Not suitable for real-world applications with significant
+                    data
+                  </li>
+                  <li>
+                    Makes unnecessary comparisons even when list is nearly
+                    sorted
+                  </li>
                 </ul>
               </div>
             </div>

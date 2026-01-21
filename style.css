@@ -195,6 +195,10 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
 }
+.legend-color.pivot {
+  background: #8e24aa;
+}
+
 
 .slider::-webkit-slider-thumb:hover {
   background: var(--primary-dark);
